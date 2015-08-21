@@ -7,12 +7,37 @@ import DOM
 import DOM.HTML
 import DOM.HTML.Types
 import DOM.HTML.Window
-import DOM.Node.Document
+import DOM.HTML.Document
+import DOM.Node.Types
+import DOM.Node.Element hiding (id)
+import qualified DOM.Node.HTMLCollection as C
+import Data.Nullable (Nullable(), toMaybe)
+import Data.Maybe (Maybe(..))
+import Data.Maybe.Unsafe (fromJust)
+
+cardImgURL :: String -> String
+cardImgURL "Purelace"       = "http://magiccards.info/scans/en/4e/293.jpg"
+cardImgURL "Thoughtflare"   = "http://magiccards.info/scans/en/rtr/203.jpg"
+cardImgURL "Memoricide"     = "http://magiccards.info/scans/en/mbp/29.jpg"
+cardImgURL "Chill"          = "http://magiccards.info/scans/en/arena/19.jpg"
+cardImgURL _                = "http://magiccards.info/scans/en/uhaa/44.jpg"
+
+coerceE :: HTMLElement -> Element
+coerceE = htmlElementToElement
+
+coerceD :: HTMLDocument -> Document
+coerceD = htmlDocumentToDocument
+
+htmlBody :: forall eff. Eff (dom :: DOM | eff) (Nullable HTMLElement)
+htmlBody = do
+  w <- window
+  d <- document w
+  body d
 
 main :: forall eff. Eff (console :: CONSOLE, dom :: DOM | eff) Unit
 main = do
-  w  <- window
-  hd <- document w
-  let d  = htmlDocumentToDocument hd
-  u  <- url d
-  log $ "Wow! " ++ show u
+  hb <- htmlBody
+  let b = coerceE $ fromJust $ toMaybe $ hb
+  hes <- getElementsByClassName "card" b
+  x   <- C.length hes
+  log $ "Wow! " ++ show x
