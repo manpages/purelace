@@ -14,6 +14,7 @@ import qualified DOM.Node.HTMLCollection as C
 import Data.Nullable (Nullable(), toMaybe)
 import Data.Maybe (Maybe(..))
 import Data.Maybe.Unsafe (fromJust)
+import qualified DOM.Node.Node as N
 
 cardImgURL :: String -> String
 cardImgURL "Purelace"       = "http://magiccards.info/scans/en/4e/293.jpg"
@@ -38,6 +39,7 @@ main :: forall eff. Eff (console :: CONSOLE, dom :: DOM | eff) Unit
 main = do
   hb <- htmlBody
   let b = coerceE $ fromJust $ toMaybe $ hb
-  hes <- getElementsByClassName "card" b
-  x   <- C.length hes
-  log $ "Wow! " ++ show x
+  hes  <- getElementsByClassName "card" b
+  one  <- C.item 1 hes
+  v    <- N.textContent $ elementToNode $ fromJust $ toMaybe $ one
+  log $ "Wow! " ++ show v
