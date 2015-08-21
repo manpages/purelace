@@ -35,11 +35,14 @@ htmlBody = do
   d <- document w
   body d
 
+unsafeA :: forall a. (Nullable a) -> a
+unsafeA = fromJust <<< toMaybe
+
 main :: forall eff. Eff (console :: CONSOLE, dom :: DOM | eff) Unit
 main = do
   hb <- htmlBody
-  let b = coerceE $ fromJust $ toMaybe $ hb
+  let b = coerceE $ unsafeA $ hb
   hes  <- getElementsByClassName "card" b
   one  <- C.item 1 hes
-  v    <- N.textContent $ elementToNode $ fromJust $ toMaybe $ one
+  v    <- N.textContent $ elementToNode $ unsafeA $ one
   log $ "Wow! " ++ show v
