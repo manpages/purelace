@@ -91,8 +91,7 @@ mapCards = do
         xn1  <- N.removeChild (unsafeA fcxn) xn
         img  <- ND.createElement "img" d
         _    <- E.setAttribute "src" (cardImgURL card) img
-        xn1  <- N.appendChild (e2n img) xn
-        return xn1
+        N.appendChild (e2n img) xn
 
 main :: forall eff. Eff (console :: CONSOLE, dom :: DOM | eff) Unit
 main = do
