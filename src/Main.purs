@@ -11,13 +11,13 @@ import DOM.HTML.Document
 import DOM.Node.Types
 import qualified DOM.Node.Document as ND
 import DOM.Node.Element hiding (id)
+import qualified DOM.Node.Element as E
 import qualified DOM.Node.HTMLCollection as C
 import Data.Nullable (Nullable(), toMaybe)
 import Data.Maybe (Maybe(..))
 import Data.Maybe.Unsafe (fromJust)
 import qualified DOM.Node.Node as N
 import qualified Unsafe.Coerce as U
-import DOM.Node.Attr
 
 cardImgURL :: String -> String
 cardImgURL "Purelace"       = "http://magiccards.info/scans/en/4e/293.jpg"
@@ -67,7 +67,7 @@ main = do
   d <- doc'
   b <- body'
   img  <- ND.createElement "img" d
-  _    <- setAttribute "src" (cardImgURL "Chill") img
+  _    <- E.setAttribute "src" (cardImgURL "Chill") img
   b1   <- N.appendChild (e2n img) (e2n b)
-  src  <- getAttribute "src" img
+  src  <- E.getAttribute "src" img
   log $ show $ unsafeA src == cardImgURL "Chill"
