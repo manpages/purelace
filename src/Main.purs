@@ -10,7 +10,6 @@ import DOM.HTML.Window
 import DOM.HTML.Document
 import DOM.Node.Types
 import qualified DOM.Node.Document as ND
-import DOM.Node.Element hiding (id)
 import qualified DOM.Node.Element as E
 import qualified DOM.Node.HTMLCollection as C
 import Data.Nullable (Nullable(), toMaybe)
@@ -62,12 +61,40 @@ body' = do
 unsafeA :: forall a. (Nullable a) -> a
 unsafeA = fromJust <<< toMaybe
 
+mapCol :: forall a eff. HTMLCollection -> 
+                        (Element -> Eff (dom :: DOM | eff) a) ->
+                        Eff (dom :: DOM | eff) HTMLCollection
+
+mapCol xs f = do
+  l <- C.length xs
+  mapDo l xs f
+    where
+      mapDo 0 xs _ = return xs
+      mapDo l xs f = do
+        nx <- C.item (l - 1) xs
+        let x = unsafeA nx
+        _ <- f x
+        mapDo (l - 1) xs f
+
+mapCards :: forall eff. Eff (console :: CONSOLE, dom :: DOM | eff) HTMLCollection
+mapCards = do
+  d   <- doc'
+  b   <- body'
+  xs <- E.getElementsByClassName "card" b
+  mapCol xs $ f d
+    where
+      f d x = do
+        let xn = e2n x
+        fcxn <- N.firstChild xn
+        card <- N.textContent $ unsafeA fcxn
+        log card
+        xn1  <- N.removeChild (unsafeA fcxn) xn
+        img  <- ND.createElement "img" d
+        _    <- E.setAttribute "src" (cardImgURL card) img
+        xn1  <- N.appendChild (e2n img) xn
+        return xn1
+
 main :: forall eff. Eff (console :: CONSOLE, dom :: DOM | eff) Unit
 main = do
-  d <- doc'
-  b <- body'
-  img  <- ND.createElement "img" d
-  _    <- E.setAttribute "src" (cardImgURL "Chill") img
-  b1   <- N.appendChild (e2n img) (e2n b)
-  src  <- E.getAttribute "src" img
-  log $ show $ unsafeA src == cardImgURL "Chill"
+  mapCards
+  log $ "Boom!"
